@@ -1,0 +1,10 @@
+name: TileEdit
+main: com.github.caoli5288.tileedit.TileEdit
+version: 1.0
+
+commands:
+  tileedit:
+    permission: tileedit.use
+    usage: tileedit <save|load>
+
+softdepend: [WorldEdit]
