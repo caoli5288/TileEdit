@@ -1,11 +1,13 @@
 package com.github.caoli5288.tileedit.tile;
 
+import com.github.caoli5288.tileedit.tile.info.AbstractTileInfo;
 import com.github.caoli5288.tileedit.tile.info.AirTileInfo;
 import com.github.caoli5288.tileedit.tile.info.ChestTileInfo;
 import com.github.caoli5288.tileedit.tile.info.MobSpawnerTileInfo;
 import com.github.caoli5288.tileedit.tile.info.SkullTileInfo;
-import com.github.caoli5288.tileedit.tile.info.TileInfo;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
@@ -14,28 +16,31 @@ import java.util.Map;
 
 public class TileInfoMap {
 
-    public static final Map<Material, TileInfo> TILE_DATA_MAP = Maps.newEnumMap(Material.class);
+    private static final Map<Material, Class<? extends AbstractTileInfo>> TYPE_MAP;
 
     static {
-        TILE_DATA_MAP.put(Material.AIR, new AirTileInfo());
-        TILE_DATA_MAP.put(Material.CHEST, new ChestTileInfo());
-        TILE_DATA_MAP.put(Material.MOB_SPAWNER, new MobSpawnerTileInfo());
-        TILE_DATA_MAP.put(Material.SKULL, new SkullTileInfo());
+        TYPE_MAP = Maps.newEnumMap(Material.class);
+        TYPE_MAP.put(Material.AIR, AirTileInfo.class);
+        TYPE_MAP.put(Material.CHEST, ChestTileInfo.class);
+        TYPE_MAP.put(Material.MOB_SPAWNER, MobSpawnerTileInfo.class);
+        TYPE_MAP.put(Material.SKULL, SkullTileInfo.class);
     }
 
-    public static boolean isType(Material block) {
-        return TILE_DATA_MAP.containsKey(block);
+    public static boolean isTile(Material type) {
+        return TYPE_MAP.containsKey(type);
     }
 
-    public static TileInfoData toInfoData(BlockState state) {
-        TileInfo info = TILE_DATA_MAP.get(state.getType());
-        TileInfoData data = new TileInfoData();
-        info.save(data, state);
-        return data;
+    @SneakyThrows
+    public static AbstractTileInfo toTileInfo(BlockState state) {
+        AbstractTileInfo info = TYPE_MAP.get(state.getType()).newInstance();
+        info.save(state);
+        return info;
     }
 
-    public static void load(TileInfoData info) {
-        TILE_DATA_MAP.get(Material.getMaterial(info.getType()))
-                .load(info, Bukkit.getWorld(info.getWorld()).getBlockAt(info.getX(), info.getY(), info.getZ()));
+    @SneakyThrows
+    public static void load(Gson gson, Map<String, String> infoMap) {
+        Class<? extends AbstractTileInfo> type = TYPE_MAP.get(Material.getMaterial(infoMap.get("type")));
+        AbstractTileInfo info = gson.fromJson(gson.toJsonTree(infoMap), type);
+        info.load(Bukkit.getWorld(info.getWorld()).getBlockAt(info.getX(), info.getY(), info.getZ()));
     }
 }

@@ -1,39 +1,34 @@
 package com.github.caoli5288.tileedit.tile.info;
 
-import com.github.caoli5288.tileedit.tile.TileInfoData;
-import com.google.common.collect.ImmutableList;
-import org.bukkit.Bukkit;
 import org.bukkit.SkullType;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
 
-import java.util.List;
+public class SkullTileInfo extends AbstractTileInfo {
 
-public class SkullTileInfo extends TileInfo {
-
-    public static final List<String> FIELDS = ImmutableList.of("customName", "rotation");
+    private SkullType skullType;
+    private BlockFace rotation;
 
     @Override
-    protected void saveState(TileInfoData data, BlockState state) {
+    protected void saveState(BlockState state) {
         Skull skull = (Skull) state;
-        data.setCustomName(skull.getSkullType().name());
-        data.setRotation(skull.getRotation().name());
-        data.setFields(FIELDS);
+        skullType = skull.getSkullType();
+        rotation = skull.getRotation();
     }
 
     @Override
-    protected boolean loadState(TileInfoData data, BlockState state) {
+    protected boolean loadState(BlockState state) {
         Skull skull = (Skull) state;
         boolean bool = false;
         // check if equal
-        if (!skull.getSkullType().name().equals(data.getCustomName())) {
-            skull.setSkullType(SkullType.valueOf(data.getCustomName()));
+        if (skull.getSkullType() != skullType) {
+            skull.setSkullType(skullType);
             bool = true;
         }
         // check if equal
-        if (!skull.getRotation().name().equals(data.getRotation())) {
-            skull.setRotation(BlockFace.valueOf(data.getRotation()));
+        if (rotation != skull.getRotation()) {
+            skull.setRotation(rotation);
             bool = true;
         }
         return bool;

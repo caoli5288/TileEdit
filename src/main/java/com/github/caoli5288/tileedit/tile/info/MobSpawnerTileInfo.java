@@ -1,41 +1,37 @@
 package com.github.caoli5288.tileedit.tile.info;
 
-import com.github.caoli5288.tileedit.tile.TileInfoData;
-import com.google.common.collect.ImmutableList;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 
-import java.util.List;
-import java.util.Objects;
+public class MobSpawnerTileInfo extends AbstractTileInfo {
 
-public class MobSpawnerTileInfo extends TileInfo {
-
-    public static final List<String> FIELDS = ImmutableList.of("delay", "customName", "max");
+    protected EntityType spawnedType;
+    protected int delay;
+    protected int maxNearby;
 
     @Override
-    protected void saveState(TileInfoData data, BlockState state) {
+    protected void saveState(BlockState state) {
         CreatureSpawner spawner = (CreatureSpawner) state;
-        data.setDelay(spawner.getDelay());
-        data.setCustomName(spawner.getSpawnedType().name());
-        data.setMax(spawner.getMaxNearbyEntities());
-        data.setFields(FIELDS);
+        delay = spawner.getDelay();
+        spawnedType = spawner.getSpawnedType();
+        maxNearby = spawner.getMaxNearbyEntities();
     }
 
     @Override
-    protected boolean loadState(TileInfoData data, BlockState state) {
+    protected boolean loadState(BlockState state) {
         CreatureSpawner spawner = (CreatureSpawner) state;
         boolean bool = false;
-        if (spawner.getDelay() != data.getDelay()) {
-            spawner.setDelay(data.getDelay());
+        if (spawner.getDelay() != delay) {
+            spawner.setDelay(delay);
             bool = true;
         }
-        if (!Objects.equals(spawner.getSpawnedType().name(), data.getCustomName())) {
-            spawner.setSpawnedType(EntityType.valueOf(data.getCustomName()));
+        if (spawnedType != spawner.getSpawnedType()) {
+            spawner.setSpawnedType(spawnedType);
             bool = true;
         }
-        if (spawner.getMaxNearbyEntities() != data.getMax()) {
-            spawner.setMaxNearbyEntities(data.getMax());
+        if (spawner.getMaxNearbyEntities() != maxNearby) {
+            spawner.setMaxNearbyEntities(maxNearby);
             bool = true;
         }
         return bool;

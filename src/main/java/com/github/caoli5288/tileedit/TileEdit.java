@@ -2,9 +2,8 @@ package com.github.caoli5288.tileedit;
 
 import com.github.caoli5288.tileedit.chunk.ChunkProviderMap;
 import com.github.caoli5288.tileedit.chunk.ChunkProviderMode;
-import com.github.caoli5288.tileedit.tile.TileInfoData;
-import com.github.caoli5288.tileedit.tile.TileInfoDataPrinter;
 import com.github.caoli5288.tileedit.tile.TileInfoMap;
+import com.github.caoli5288.tileedit.tile.TileInfoPrinter;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
@@ -65,13 +64,12 @@ public class TileEdit extends JavaPlugin {
         if (!file.isFile()) {
             Preconditions.checkState(file.createNewFile(), "Create file error: %s", file);
         }
-        TileInfoDataPrinter printer = new TileInfoDataPrinter(file);
+        TileInfoPrinter printer = new TileInfoPrinter(file);
         List<Chunk> chunks = ChunkProviderMap.getProvider(mode).getChunks(who, level);
         for (Chunk chunk : chunks) {
             for (BlockState tile : chunk.getTileEntities()) {
-                if (TileInfoMap.isType(tile.getType())) {
-                    TileInfoData data = TileInfoMap.toInfoData(tile);
-                    printer.buffer(data);
+                if (TileInfoMap.isTile(tile.getType())) {
+                    printer.buffer(TileInfoMap.toTileInfo(tile));
                 }
             }
         }
@@ -88,10 +86,7 @@ public class TileEdit extends JavaPlugin {
         Gson gson = new Gson();
         CSVFormat.EXCEL.withFirstRecordAsHeader()
                 .parse(Files.newReader(file, Charset.forName("GBK")))
-                .forEach(it -> {
-                    TileInfoData info = gson.fromJson(gson.toJsonTree(it.toMap()), TileInfoData.class);
-                    TileInfoMap.load(info);
-                });
-        getLogger().info("load success");
+                .forEach(it -> TileInfoMap.load(gson, it.toMap()));
+        who.sendMessage("load success");
     }
 }
