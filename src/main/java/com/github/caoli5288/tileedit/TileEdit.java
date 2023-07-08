@@ -5,12 +5,14 @@ import com.github.caoli5288.tileedit.chunk.ChunkProviderMode;
 import com.github.caoli5288.tileedit.tile.TileInfoMap;
 import com.github.caoli5288.tileedit.tile.TileInfoPrinter;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import org.apache.commons.csv.CSVFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
@@ -21,6 +23,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
 
 public class TileEdit extends JavaPlugin {
 
@@ -37,9 +42,18 @@ public class TileEdit extends JavaPlugin {
         switch (args[0]) {
             case "save":
                 if (args.length < 2) {
-                    save(who, ChunkProviderMode.LOADED);
+                    save(who, ChunkProviderMode.LOADED, it -> true);
+                } else if (args.length < 3) {
+                    save(who, ChunkProviderMode.valueOf(args[1].toUpperCase()), it -> true);
                 } else {
-                    save(who, ChunkProviderMode.valueOf(args[1].toUpperCase()));
+                    // example: [save, loaded, air]
+                    Set<Material> materials = Sets.newHashSet();
+                    for (int i = 2; i < args.length; i++) {
+                        Material type = Material.getMaterial(args[i].toUpperCase());
+                        Objects.requireNonNull(type, "Material not found: %s");
+                        materials.add(type);
+                    }
+                    save(who, ChunkProviderMode.valueOf(args[1].toUpperCase()), materials::contains);
                 }
                 return true;
             case "load":
@@ -53,7 +67,7 @@ public class TileEdit extends JavaPlugin {
     }
 
     @SneakyThrows
-    private void save(CommandSender who, ChunkProviderMode mode) {
+    private void save(CommandSender who, ChunkProviderMode mode, Predicate<Material> materials) {
         World level = Bukkit.getWorlds().get(0);
         if (who instanceof Player) {
             Player p = (Player) who;
@@ -68,13 +82,14 @@ public class TileEdit extends JavaPlugin {
         List<Chunk> chunks = ChunkProviderMap.getProvider(mode).getChunks(who, level);
         for (Chunk chunk : chunks) {
             for (BlockState tile : chunk.getTileEntities()) {
-                if (TileInfoMap.isTile(tile.getType())) {
+                Material type = tile.getType();
+                if (materials.test(type) && TileInfoMap.isTile(type)) {
                     printer.buffer(TileInfoMap.toTileInfo(tile));
                 }
             }
         }
         printer.flush();
-        getLogger().info(String.format("save " +
+        who.sendMessage(String.format("save " +
                 mode.name() +
                 " chunks to %s", file.getPath()));
     }

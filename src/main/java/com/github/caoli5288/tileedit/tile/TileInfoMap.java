@@ -3,7 +3,9 @@ package com.github.caoli5288.tileedit.tile;
 import com.github.caoli5288.tileedit.tile.info.AbstractTileInfo;
 import com.github.caoli5288.tileedit.tile.info.AirTileInfo;
 import com.github.caoli5288.tileedit.tile.info.ChestTileInfo;
+import com.github.caoli5288.tileedit.tile.info.CommandTileInfo;
 import com.github.caoli5288.tileedit.tile.info.MobSpawnerTileInfo;
+import com.github.caoli5288.tileedit.tile.info.SignTileInfo;
 import com.github.caoli5288.tileedit.tile.info.SkullTileInfo;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
@@ -24,6 +26,9 @@ public class TileInfoMap {
         TYPE_MAP.put(Material.CHEST, ChestTileInfo.class);
         TYPE_MAP.put(Material.MOB_SPAWNER, MobSpawnerTileInfo.class);
         TYPE_MAP.put(Material.SKULL, SkullTileInfo.class);
+        TYPE_MAP.put(Material.SIGN_POST, SignTileInfo.class);
+        TYPE_MAP.put(Material.WALL_SIGN, SignTileInfo.class);
+        TYPE_MAP.put(Material.COMMAND, CommandTileInfo.class);
     }
 
     public static boolean isTile(Material type) {
