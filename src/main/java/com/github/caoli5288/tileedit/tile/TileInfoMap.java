@@ -1,11 +1,11 @@
 package com.github.caoli5288.tileedit.tile;
 
 import com.github.caoli5288.tileedit.tile.info.AbstractTileInfo;
-import com.github.caoli5288.tileedit.tile.info.AirTileInfo;
 import com.github.caoli5288.tileedit.tile.info.ChestTileInfo;
 import com.github.caoli5288.tileedit.tile.info.CommandTileInfo;
 import com.github.caoli5288.tileedit.tile.info.MobSpawnerTileInfo;
 import com.github.caoli5288.tileedit.tile.info.SignTileInfo;
+import com.github.caoli5288.tileedit.tile.info.SimpleBlockInfo;
 import com.github.caoli5288.tileedit.tile.info.SkullTileInfo;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
@@ -22,7 +22,6 @@ public class TileInfoMap {
 
     static {
         TYPE_MAP = Maps.newEnumMap(Material.class);
-        TYPE_MAP.put(Material.AIR, AirTileInfo.class);
         TYPE_MAP.put(Material.CHEST, ChestTileInfo.class);
         TYPE_MAP.put(Material.MOB_SPAWNER, MobSpawnerTileInfo.class);
         TYPE_MAP.put(Material.SKULL, SkullTileInfo.class);
@@ -44,8 +43,8 @@ public class TileInfoMap {
 
     @SneakyThrows
     public static void load(Gson gson, Map<String, String> infoMap) {
-        Class<? extends AbstractTileInfo> type = TYPE_MAP.get(Material.getMaterial(infoMap.get("type")));
-        AbstractTileInfo info = gson.fromJson(gson.toJsonTree(infoMap), type);
+        AbstractTileInfo info = gson.fromJson(gson.toJsonTree(infoMap),
+                TYPE_MAP.getOrDefault(Material.getMaterial(infoMap.get("type")), SimpleBlockInfo.class));
         info.load(Bukkit.getWorld(info.getWorld()).getBlockAt(info.getX(), info.getY(), info.getZ()));
     }
 }
