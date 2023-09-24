@@ -10,6 +10,7 @@ import com.google.common.io.Files;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -28,6 +29,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public class TileEdit extends JavaPlugin {
+
+    private String levelName;
 
     @Override
     public void onLoad() {
@@ -62,6 +65,13 @@ public class TileEdit extends JavaPlugin {
                 }
                 load(who, args[1]);
                 return true;
+            case "select":
+                if (args.length < 2) {
+                    return false;
+                }
+                levelName = args[1];
+                who.sendMessage("select " + levelName);
+                return true;
         }
         return false;
     }
@@ -72,6 +82,9 @@ public class TileEdit extends JavaPlugin {
         if (who instanceof Player) {
             Player p = (Player) who;
             level = p.getWorld();
+        }
+        if (StringUtils.isNotEmpty(levelName)) {
+            level = Bukkit.getWorld(levelName);
         }
         // Csv out
         File file = new File(getDataFolder(), (System.currentTimeMillis() / 1000) + ".csv");
