@@ -5,6 +5,9 @@ version: 1.0
 commands:
   tileedit:
     permission: tileedit.use
-    usage: tileedit <save|load>
+    usage: |
+      tileedit save [LOADED|BORDER|WE] [TYPE...]
+      tileedit load <filename>
+      tileedit select <level_name>
 
 softdepend: [WorldEdit]
