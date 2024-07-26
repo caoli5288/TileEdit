@@ -1,6 +1,7 @@
 package com.github.caoli5288.tileedit.tile;
 
 import com.github.caoli5288.tileedit.tile.info.AbstractTileInfo;
+import com.github.caoli5288.tileedit.tile.info.BannerTileInfo;
 import com.github.caoli5288.tileedit.tile.info.ChestTileInfo;
 import com.github.caoli5288.tileedit.tile.info.CommandTileInfo;
 import com.github.caoli5288.tileedit.tile.info.MobSpawnerTileInfo;
@@ -28,6 +29,8 @@ public class TileInfoMap {
         TYPE_MAP.put(Material.SIGN_POST, SignTileInfo.class);
         TYPE_MAP.put(Material.WALL_SIGN, SignTileInfo.class);
         TYPE_MAP.put(Material.COMMAND, CommandTileInfo.class);
+        TYPE_MAP.put(Material.STANDING_BANNER, BannerTileInfo.class);
+        TYPE_MAP.put(Material.WALL_BANNER, BannerTileInfo.class);
     }
 
     public static boolean isTile(Material type) {
@@ -36,7 +39,7 @@ public class TileInfoMap {
 
     @SneakyThrows
     public static AbstractTileInfo toTileInfo(BlockState state) {
-        AbstractTileInfo info = TYPE_MAP.get(state.getType()).newInstance();
+        AbstractTileInfo info = TYPE_MAP.getOrDefault(state.getType(), SimpleBlockInfo.class).newInstance();
         info.save(state);
         return info;
     }

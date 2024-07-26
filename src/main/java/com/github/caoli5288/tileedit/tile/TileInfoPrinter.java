@@ -1,9 +1,9 @@
 package com.github.caoli5288.tileedit.tile;
 
+import com.github.caoli5288.tileedit.TileEdit;
 import com.github.caoli5288.tileedit.tile.info.AbstractTileInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.SneakyThrows;
 import org.apache.commons.csv.CSVFormat;
@@ -39,9 +39,8 @@ public class TileInfoPrinter {
         List<String> list = listFields();
         CSVPrinter printer = CSVFormat.EXCEL.withHeader(list.toArray(new String[0]))
                 .print(file, Charset.forName("GBK"));
-        Gson gson = new Gson();
         for (AbstractTileInfo info : buffer) {
-            JsonObject el = gson.toJsonTree(info).getAsJsonObject();
+            JsonObject el = TileEdit.GSON.toJsonTree(info).getAsJsonObject();
             for (String fieldName : list) {
                 if (el.has(fieldName)) {
                     printer.print(el.get(fieldName).getAsString());

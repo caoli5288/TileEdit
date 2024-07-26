@@ -9,5 +9,6 @@ commands:
       tileedit save [LOADED|BORDER|WE] [TYPE...]
       tileedit load <filename>
       tileedit select <level_name>
+      tileedit lookup [LOADED|BORDER|WE] [TYPE...]
 
 softdepend: [WorldEdit]
